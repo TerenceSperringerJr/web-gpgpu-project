@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>HW3: GPU EDITION</title>
+	<meta charset="UTF-8">
+	<meta type="author" content="Terence Sperringer">
+	
+	<link rel="stylesheet" href="hw3_reloaded.css">
+	
+	<script src="https://turbo.github.io/js/turbo.js"></script>
+	<!-- <script src="libraries/turbo.js"></script> -->
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<!-- <script src="libraries/jquery.min.js"></script> -->
+	
+	<script src="hw3_library.js" defer></script>
+	<script src="hw3_serial.js" defer></script>
+	<script src="hw3_gpu_parallel.js" defer></script>
+</head>
+
+<body>
+	<div style="padding-bottom: 5px;">
+		<button onclick="HW3_LIBRARY.toggleHW3About();">About</button>
+		
+		<div id="about-hw3" class="quote" hidden>
+			<p><span style="font-size: x-large;">"</span>The goal of this application is to analyze the performance of running homework #3 in parallel via GPGPU methodologies against the performance of running it serially on systems of varying GPU configurations.</p>
+			<p>To assist this goal, the application was made with <a href="https://turbo.js.org/" target="_blank">TurboJS</a> so that it can run easily within many popular modern browsers without the need for porting or modifying code.<span style="font-size: x-large;">"</span></p>
+		</div>
+	</div>
+	
+	<div>
+		<button onclick="startSerial();">Serial Version</button>
+		<button onclick="startGPUParallel();">GPU Data Parallel Version</button>
+	</div>
+	
+	<h3>Output:</h3>
+	<div class="output-box">
+		<output id="output"></output>
+	</div>
+	
+	<h3>Serial Results:</h3>
+	<div class="output-box">
+		<output id="serial-results"></output>
+	</div>
+	
+	<h3>GPU Parallel Results:</h3>
+	<div class="output-box">
+		<output id="gpu-results"></output>
+	</div>
+</body>
+</html>

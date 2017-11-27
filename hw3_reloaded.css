@@ -1,0 +1,10 @@
+
+.quote {
+	margin-left: 30px;
+	font-style: italic;
+}
+
+.output-box {
+	max-height: 500px;
+	overflow: auto;
+}
