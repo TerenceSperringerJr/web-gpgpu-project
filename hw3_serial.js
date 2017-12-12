@@ -20,17 +20,23 @@
 		var directedGraph = HW3_LIBRARY.directedGraph[graphIndex],
 			betweenVector = [],
 			i,
-			row;
+			row,
+			rowData = [];
 		
 		//initialization performance win
 		for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
 			betweenVector[i] = 0;
+			rowData[i] = 0;
 		}
 		
 		for(row = 0; row < HW3_LIBRARY.cellCount; row++) {
+			rowData.fill(0);
+			
 			for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
-				HW3_LIBRARY.getEncountersOfShortestPaths2(directedGraph, i, row, betweenVector, 0);
+				HW3_LIBRARY.getEncountersOfShortestPaths(directedGraph, i, row, rowData, 0);
 			}
+			
+			consolidateBetweeness(betweenVector, rowData);
 		}
 		
 		output[graphIndex] = HW3_LIBRARY.stringifyMatrix(directedGraph) + betweenVector.toString() + "<hr><br>";

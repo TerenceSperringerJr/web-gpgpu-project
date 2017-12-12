@@ -27,128 +27,49 @@ var HW3_LIBRARY =
 		return false;
 	}
 	
-	function queueNextCells(toVisit, currentCell, step, directedGraph) {
+	function queueNextCells(toVisit, currentCell, currentStep, directedGraph) {
 		var i,
 			nextIndex;
-		
-		/* mark currentCell as visited */
-		toVisit[currentCell].step = -2;
 		
 		for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
 			nextIndex = (i * HW3_LIBRARY.cellCount) + currentCell;
 			if((directedGraph[nextIndex] === 1) && (toVisit[i].step === -1)) {
 				/* store 'adjacent' cell */
 				toVisit[i].fromCell = currentCell;
-				toVisit[i].step = step;
+				toVisit[i].step = currentStep + 1;
 			}
 		}
 		
 		return;
 	}
 	
-	function fetchNextCell(toVisit) {
+	function fetchNextCell(toVisit, currentCell) {
 		var i,
-			fromCell = -1,
 			nextCell = -1,
 			step = HW3_LIBRARY.cellCount;
 		
 		for(i = 0; i < toVisit.length; i++) {
-			if((toVisit[i].step > 0) && (toVisit[i].step < step)) {
+			if((toVisit[i].step > 0) && (toVisit[i].fromCell === currentCell)) {
 				nextCell = i;
-				fromCell = toVisit[i].fromCell;
 				step = toVisit[i].step;
+				
+				break;
 			}
 		}
 		
-		if(nextCell > -1) {
-			/* dequeue cell and mark as visited */
-			toVisit[nextCell].step = -2;
-		}
-		
-		return {fromCell: fromCell, nextCell: nextCell, step: step};
+		return {nextCell: nextCell, step: step};
 	}
 	
 	//Attempt to get the encounters along shortest paths found towards a goal cell via breadth-first search
 	//Tries to simulate avoiding dynamic memory (all allocations done at beginning only) */
-	HW3Library.prototype.getEncountersOfShortestPaths = function(directedGraph, startCell, goalCell) {
-		var encounters = [],
-			history = [],
-			step = 0,
-			toVisit = [],
-			currentCell,
-			i,
-			nextIndex,
-			temp = {fromCell: -1, nextCell: -1, step: -1},
-			expand = true;
-		
-		/* initialize bookkeeping */
-		for(i = 0; i < this.cellCount; i++) {
-			encounters.push(0);
-			history.push(-1);
-			toVisit.push({fromCell: -1, step: -1});
-		}
-		
-		/* If the start is the goal just return 1 encounter */
-		if(startCell === goalCell) {
-			encounters[startCell] = 1;
-			
-			return encounters;
-		}
-		
-		/* visit starting cell */
-		currentCell = startCell;
-		
-		/* record history */
-		history[step] = startCell;
-		
-		/* queue 'adjacent' cells */
-		queueNextCells(toVisit, currentCell, step + 1, directedGraph);
-		
-		while(hasQueue(toVisit)) {
-			/* fetch next queued cell */
-			temp = fetchNextCell(toVisit);
-			
-			/* visit next cell */
-			currentCell = temp.nextCell;
-			step = temp.step;
-			history[step - 1] = temp.fromCell;
-			
-			/* record history */
-			history[step] = currentCell;
-			
-			/* if the goal is reached, record encounters and halt expansion */
-			if(currentCell === goalCell) {
-				for(i = 0; i < history.length; i++) {
-					if(history[i] >= 0) {
-						encounters[history[i]]++;
-					}
-					else {
-						break;
-					}
-				}
-				
-				/* stop expanding and only accept paths the same length as this path */
-				expand = false;
-			}
-			
-			if(expand) {
-				/* queue 'adjacent' cells */
-				queueNextCells(toVisit, currentCell, step + 1, directedGraph);
-			}
-		}
-		
-		return encounters;
-	}
-	
-	HW3Library.prototype.getEncountersOfShortestPaths2 = function(directedGraph, startCell, goalCell, encounters, offset) {
+	HW3Library.prototype.getEncountersOfShortestPaths = function(directedGraph, startCell, goalCell, encounters, offset) {
 		var history = [],
-			step = 0,
+			currentStep = 0,
 			toVisit = [],
 			currentCell,
 			i,
-			nextIndex,
-			temp = {fromCell: -1, nextCell: -1, step: -1},
-			expand = true;
+			temp,
+			shortestPathLength = HW3_LIBRARY.cellCount;
 		
 		/* initialize bookkeeping */
 		for(i = 0; i < this.cellCount; i++) {
@@ -166,43 +87,62 @@ var HW3_LIBRARY =
 		
 		/* visit starting cell */
 		currentCell = startCell;
+		/* mark currentCell as visited */
+		toVisit[currentCell].step = 0;
 		
 		/* record history */
-		history[step] = startCell;
+		history[currentStep] = currentCell;
 		
 		/* queue 'adjacent' cells */
-		queueNextCells(toVisit, currentCell, step + 1, directedGraph);
+		queueNextCells(toVisit, currentCell, currentStep, directedGraph);
 		
 		while(hasQueue(toVisit)) {
 			/* fetch next queued cell */
-			temp = fetchNextCell(toVisit);
+			temp = fetchNextCell(toVisit, currentCell);
 			
-			/* visit next cell */
-			currentCell = temp.nextCell;
-			step = temp.step;
-			history[step - 1] = temp.fromCell;
-			
-			/* record history */
-			history[step] = currentCell;
-			
-			/* if the goal is reached, record encounters and halt expansion */
-			if(currentCell === goalCell) {
-				for(i = 0; i < history.length; i++) {
-					if(history[i] >= 0) {
-						encounters[offset + history[i]]++;
-					}
-					else {
-						break;
-					}
-				}
+			if(temp.nextCell > -1) {
+				// visit next cell
+				currentCell = temp.nextCell;
+				// mark currentCell as visited
+				toVisit[currentCell].step = 0;
+				// update step
+				currentStep = temp.step;
+				// record history
+				history[currentStep] = currentCell;
 				
-				/* stop expanding and only accept paths the same length as this path */
-				expand = false;
+				/* if the goal is reached, record encounters and halt expansion */
+				if(currentCell === goalCell) {
+					for(i = 0; i < history.length; i++) {
+						if(history[i] >= 0) {
+							encounters[offset + history[i]]++;
+						}
+						else {
+							break;
+						}
+					}
+					
+					// stop expanding and only accept paths the same length as this path
+					shortestPathLength = currentStep;
+					//drop anything queued with longer path (higher step)
+					for(i = 0; i < toVisit.length; i++) {
+						if(toVisit[i].step > shortestPathLength) {
+							toVisit[i].step = 0;
+						}
+					}
+					
+				}
+			}
+			/* we've reached a dead end! */
+			else {
+				//undo last step
+				history[currentStep] = -1;
+				currentStep--;
+				currentCell = history[currentStep];
 			}
 			
-			if(expand) {
+			if(currentStep < shortestPathLength) {
 				/* queue 'adjacent' cells */
-				queueNextCells(toVisit, currentCell, step + 1, directedGraph);
+				queueNextCells(toVisit, currentCell, currentStep, directedGraph);
 			}
 		}
 		

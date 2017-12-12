@@ -37,7 +37,7 @@
 		
 		for(row = 0; row < HW3_LIBRARY.cellCount; row++) {
 			for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
-				HW3_LIBRARY.getEncountersOfShortestPaths2(directedGraph, i, row, buffer, row * HW3_LIBRARY.cellCount);
+				HW3_LIBRARY.getEncountersOfShortestPaths(directedGraph, i, row, buffer, row * HW3_LIBRARY.cellCount);
 			}
 		}
 		
