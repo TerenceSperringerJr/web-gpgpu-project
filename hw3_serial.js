@@ -20,15 +20,16 @@
 		var directedGraph = HW3_LIBRARY.directedGraph[graphIndex],
 			betweenVector = [],
 			i,
-			j;
+			row;
 		
+		//initialization performance win
 		for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
 			betweenVector[i] = 0;
 		}
 		
-		for(j = 0; j < HW3_LIBRARY.cellCount; j++) {
+		for(row = 0; row < HW3_LIBRARY.cellCount; row++) {
 			for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
-				consolidateBetweeness(betweenVector, HW3_LIBRARY.getEncountersOfShortestPaths(directedGraph, i, j));
+				HW3_LIBRARY.getEncountersOfShortestPaths2(directedGraph, i, row, betweenVector, 0);
 			}
 		}
 		

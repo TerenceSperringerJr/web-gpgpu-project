@@ -68,8 +68,8 @@ var HW3_LIBRARY =
 		return {fromCell: fromCell, nextCell: nextCell, step: step};
 	}
 	
-	/* Attempt to get the encounters along shortest paths to a goal cell via breadth-first search &
-	simulate avoiding dynamic memory (all allocations done at beginning only) */
+	//Attempt to get the encounters along shortest paths found towards a goal cell via breadth-first search
+	//Tries to simulate avoiding dynamic memory (all allocations done at beginning only) */
 	HW3Library.prototype.getEncountersOfShortestPaths = function(directedGraph, startCell, goalCell) {
 		var encounters = [],
 			history = [],
@@ -138,6 +138,75 @@ var HW3_LIBRARY =
 		}
 		
 		return encounters;
+	}
+	
+	HW3Library.prototype.getEncountersOfShortestPaths2 = function(directedGraph, startCell, goalCell, encounters, offset) {
+		var history = [],
+			step = 0,
+			toVisit = [],
+			currentCell,
+			i,
+			nextIndex,
+			temp = {fromCell: -1, nextCell: -1, step: -1},
+			expand = true;
+		
+		/* initialize bookkeeping */
+		for(i = 0; i < this.cellCount; i++) {
+			//encounters[offset + i] = 0;
+			history.push(-1);
+			toVisit.push({fromCell: -1, step: -1});
+		}
+		
+		/* If the start is the goal just return 1 encounter */
+		if(startCell === goalCell) {
+			encounters[offset + startCell]++;
+			
+			return;
+		}
+		
+		/* visit starting cell */
+		currentCell = startCell;
+		
+		/* record history */
+		history[step] = startCell;
+		
+		/* queue 'adjacent' cells */
+		queueNextCells(toVisit, currentCell, step + 1, directedGraph);
+		
+		while(hasQueue(toVisit)) {
+			/* fetch next queued cell */
+			temp = fetchNextCell(toVisit);
+			
+			/* visit next cell */
+			currentCell = temp.nextCell;
+			step = temp.step;
+			history[step - 1] = temp.fromCell;
+			
+			/* record history */
+			history[step] = currentCell;
+			
+			/* if the goal is reached, record encounters and halt expansion */
+			if(currentCell === goalCell) {
+				for(i = 0; i < history.length; i++) {
+					if(history[i] >= 0) {
+						encounters[offset + history[i]]++;
+					}
+					else {
+						break;
+					}
+				}
+				
+				/* stop expanding and only accept paths the same length as this path */
+				expand = false;
+			}
+			
+			if(expand) {
+				/* queue 'adjacent' cells */
+				queueNextCells(toVisit, currentCell, step + 1, directedGraph);
+			}
+		}
+		
+		return;
 	}
 	
 	HW3Library.prototype.randomizeAllGraphs = function() {
