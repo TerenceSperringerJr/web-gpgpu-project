@@ -60,6 +60,29 @@ var HW3_LIBRARY =
 		return {nextCell: nextCell, step: step};
 	}
 	
+	//Add the connection graph columns together to get direct encounters
+	HW3Library.prototype.serialDirectConnects = function(betweenVector, connectionGraph, offset) {
+		var y,
+			x,
+			row;
+		
+		for(x = 0; x < HW3_LIBRARY.cellCount; x++) {
+			for(y = 0; y < HW3_LIBRARY.cellCount; y++) {
+				row = y * HW3_LIBRARY.cellCount;
+				
+				if(x !== y) {
+					betweenVector[offset + y] += connectionGraph[row + x];
+					betweenVector[offset + x] += connectionGraph[row + x];
+				}
+				else{
+					betweenVector[offset + x]++;
+				}
+			}
+		}
+		
+		return;
+	}
+	
 	//Attempt to get the encounters along shortest paths found towards a goal cell via breadth-first search
 	//Tries to simulate avoiding dynamic memory (all allocations done at beginning only) */
 	HW3Library.prototype.getEncountersOfShortestPaths = function(directedGraph, startCell, goalCell, encounters, offset) {

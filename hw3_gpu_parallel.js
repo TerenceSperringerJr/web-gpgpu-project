@@ -22,38 +22,45 @@
 	function betweenerGPU() {
 		var betweenVectorOffset = HW3_LIBRARY.graphSize,
 			directedGraph = HW3_LIBRARY.directedGraph[graphIndex],
-			graphCopy = [],
-			betweenVector = [],
 			i,
-			k,
-			row,
-			rowData,
+			y,
+			rowOffset,
 			buffer = gpuBuffer.data;
 		
-		//initialization performance loss
-		for(i = 0; i < gpuBufferLength; i++) {
+		//Initialization
+		//BIG PERFORMANCE LOSS!
+		for(i = 0; i < HW3_LIBRARY.graphSize; i++) {
+			buffer[i] = directedGraph[i];
+		}
+		//Rough equivalent of serial initialization
+		for(; i < gpuBufferLength; i++) {
 			buffer[i] = 0;
 		}
 		
-		for(row = 0; row < HW3_LIBRARY.cellCount; row++) {
+		//GPU work
+		//Add the connection graph columns together to get direct occurences
+		//PERFORMANCE WIN?
+		turbojs.run(gpuBuffer, DIRECT_CONNECTS);
+		
+		for(y = 0; y < HW3_LIBRARY.cellCount; y++) {
+			rowOffset = y * HW3_LIBRARY.cellCount;
+			
 			for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
-				HW3_LIBRARY.getEncountersOfShortestPaths(directedGraph, i, row, buffer, row * HW3_LIBRARY.cellCount);
+				if(directedGraph[rowOffset + i] === 0) {
+					HW3_LIBRARY.getEncountersOfShortestPaths(directedGraph, i, y, buffer, betweenVectorOffset);
+				}
 			}
 		}
 		
-		/* invoke GPU on gpuBuffer using ADD_ROWS shader */
-		turbojs.run(gpuBuffer, ADD_ROWS);
+		//invoke GPU on gpuBuffer using ADD_ROWS shader
+		//obsolete but I worked really hard on it and it paved the way for new computation
+		//turbojs.run(gpuBuffer, ADD_ROWS);
 		
-		graphCopy = directedGraph;
-		/*
-		for(i = 0; i < HW3_LIBRARY.graphSize; i++) {
-			graphCopy[i] = gpuBuffer.data[i];
-		}
-		*/
-		
-		output[graphIndex] = HW3_LIBRARY.stringifyMatrix(graphCopy) + gpuBuffer.data[betweenVectorOffset + i];
+		//Output
+		//Either match or slight loss -depending on toString() implementation
+		output[graphIndex] = HW3_LIBRARY.stringifyMatrix(directedGraph) + buffer[betweenVectorOffset];
 		for(i = 1; i < HW3_LIBRARY.cellCount; i++) {
-			output[graphIndex] += "," + gpuBuffer.data[betweenVectorOffset + i];
+			output[graphIndex] += "," + buffer[betweenVectorOffset + i];
 		}
 		output[graphIndex] += "<hr><br>";
 		

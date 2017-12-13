@@ -21,24 +21,30 @@
 			betweenVector = [],
 			i,
 			row,
-			rowData = [];
+			rowOffset;
 		
-		//initialization performance win
+		//Initialization
+		//PERFORMANCE WIN
 		for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
 			betweenVector[i] = 0;
-			rowData[i] = 0;
 		}
+		
+		//Add the connection graph columns together to get direct occurences
+		//PERFORMANCE LOSS
+		HW3_LIBRARY.serialDirectConnects(betweenVector, directedGraph, 0);
 		
 		for(row = 0; row < HW3_LIBRARY.cellCount; row++) {
-			rowData.fill(0);
-			
+			rowOffset = row * HW3_LIBRARY.cellCount;
 			for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
-				HW3_LIBRARY.getEncountersOfShortestPaths(directedGraph, i, row, rowData, 0);
+				// only perform shortest paths if row, column is zero (not directly connected)
+				if(directedGraph[rowOffset + i] === 0) {
+					HW3_LIBRARY.getEncountersOfShortestPaths(directedGraph, i, row, betweenVector, 0);
+				}
 			}
-			
-			consolidateBetweeness(betweenVector, rowData);
 		}
 		
+		//Output
+		//PERFORMANCE MATCH?
 		output[graphIndex] = HW3_LIBRARY.stringifyMatrix(directedGraph) + betweenVector.toString() + "<hr><br>";
 		graphIndex++;
 		
