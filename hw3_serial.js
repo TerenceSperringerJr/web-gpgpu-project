@@ -4,30 +4,15 @@
 
 (function() {
 	var output = [],
-		graphIndex;
-	
-	function consolidateBetweeness(betweenVector, assimilateVector) {
-		var i;
-		
-		for(i = 0; i < betweenVector.length; i++) {
-			betweenVector[i] += assimilateVector[i]
-		}
-		
-		return;
-	}
+		graphIndex,
+		betweenVectorArray = [];
 	
 	function betweenerSerial() {
 		var directedGraph = HW3_LIBRARY.directedGraph[graphIndex],
-			betweenVector = [],
+			betweenVector = betweenVectorArray[graphIndex],
 			i,
 			row,
 			rowOffset;
-		
-		//Initialization
-		//PERFORMANCE WIN
-		for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
-			betweenVector[i] = 0;
-		}
 		
 		//Add the connection graph columns together to get direct occurences
 		//PERFORMANCE LOSS
@@ -57,9 +42,18 @@
 	
 	window.startSerial = function() {
 		var times,
-			i;
+			i,
+			j;
 		
 		graphIndex = 0;
+		
+		for(i = 0; i < HW3_LIBRARY.profileCalls; i++) {
+			betweenVectorArray[i] = [];
+			
+			for(j = 0; j < HW3_LIBRARY.cellCount; j++) {
+				betweenVectorArray[i].push(0);
+			}
+		}
 		
 		HW3_LIBRARY.clearOutput();
 		$("#serial-results").html("Running Serial Version...");

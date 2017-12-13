@@ -6,47 +6,28 @@
 	var output = [],
 		graphIndex,
 		gpuBufferLength = HW3_LIBRARY.graphSize + HW3_LIBRARY.cellCount,
-		gpuBuffer;
-	
-	function consolidateRow(buffer, rowData, row) {
-		var i;
-		
-		for(i = 0; i < rowData.length; i++) {
-			buffer[(row * HW3_LIBRARY.cellCount) + i] += rowData[i];
-		}
-		
-		return;
-	}
+		gpuBufferArray = [];
 	
 	/* This initializes the data and calls the computeKernel */
 	function betweenerGPU() {
 		var betweenVectorOffset = HW3_LIBRARY.graphSize,
 			directedGraph = HW3_LIBRARY.directedGraph[graphIndex],
 			i,
-			y,
+			row,
 			rowOffset,
+			gpuBuffer = gpuBufferArray[graphIndex],
 			buffer = gpuBuffer.data;
-		
-		//Initialization
-		//BIG PERFORMANCE LOSS!
-		for(i = 0; i < HW3_LIBRARY.graphSize; i++) {
-			buffer[i] = directedGraph[i];
-		}
-		//Rough equivalent of serial initialization
-		for(; i < gpuBufferLength; i++) {
-			buffer[i] = 0;
-		}
 		
 		//GPU work: add the connection graph columns together to get direct occurences
 		//PERFORMANCE WIN?
 		turbojs.run(gpuBuffer, DIRECT_CONNECTS);
 		
-		for(y = 0; y < HW3_LIBRARY.cellCount; y++) {
-			rowOffset = y * HW3_LIBRARY.cellCount;
+		for(row = 0; row < HW3_LIBRARY.cellCount; row++) {
+			rowOffset = row * HW3_LIBRARY.cellCount;
 			
 			for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
 				if(directedGraph[rowOffset + i] === 0) {
-					HW3_LIBRARY.getEncountersOfShortestPaths(directedGraph, i, y, buffer, betweenVectorOffset);
+					HW3_LIBRARY.getEncountersOfShortestPaths(directedGraph, i, row, buffer, betweenVectorOffset);
 				}
 			}
 		}
@@ -72,7 +53,8 @@
 	
 	window.startGPUParallel = function() {
 		var times,
-			i;
+			i,
+			j;
 		
 		if(!turbojs) {
 			$("#gpu-results").html("ERROR: TurboJS is unable to work with your system =(");
@@ -80,7 +62,17 @@
 			return;
 		}
 		
-		gpuBuffer = turbojs.alloc(gpuBufferLength);
+		for(i = 0; i < HW3_LIBRARY.profileCalls; i++) {
+			gpuBufferArray[i] = turbojs.alloc(gpuBufferLength);
+			
+			for(j = 0; j < HW3_LIBRARY.graphSize; j++) {
+				gpuBufferArray[i].data[j] = HW3_LIBRARY.directedGraph[i][j];
+			}
+			for(; j < gpuBufferLength; j++) {
+				gpuBufferArray[i].data[j] = 0;
+			}
+		}
+		
 		graphIndex = 0;
 		
 		HW3_LIBRARY.clearOutput();
