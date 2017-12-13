@@ -35,6 +35,7 @@
 		
 		for(row = 0; row < HW3_LIBRARY.cellCount; row++) {
 			rowOffset = row * HW3_LIBRARY.cellCount;
+			
 			for(i = 0; i < HW3_LIBRARY.cellCount; i++) {
 				// only perform shortest paths if row, column is zero (not directly connected)
 				if(directedGraph[rowOffset + i] === 0) {
@@ -45,7 +46,10 @@
 		
 		//Output
 		//PERFORMANCE MATCH?
-		output[graphIndex] = HW3_LIBRARY.stringifyMatrix(directedGraph) + betweenVector.toString() + "<hr><br>";
+		if(HW3_LIBRARY.verboseMode) {
+			output[graphIndex] = HW3_LIBRARY.stringifyMatrix(directedGraph) + betweenVector.toString() + "<hr><br>";
+		}
+		
 		graphIndex++;
 		
 		return;
@@ -61,8 +65,10 @@
 		$("#serial-results").html("Running Serial Version...");
 		times = HW3_LIBRARY.profileFunction(betweenerSerial, HW3_LIBRARY.profileCalls);
 		
-		for(i = 0; i < HW3_LIBRARY.profileCalls; i++) {
-			HW3_LIBRARY.printToOutput(output[i]);
+		if(HW3_LIBRARY.verboseMode) {
+			for(i = 0; i < HW3_LIBRARY.profileCalls; i++) {
+				HW3_LIBRARY.printToOutput(output[i]);
+			}
 		}
 		
 		HW3_LIBRARY.printTimeStatistics(times, $("#serial-results")[0]);

@@ -9,6 +9,7 @@ var HW3_LIBRARY =
 		this.cellCount = 100;
 		this.graphSize = this.cellCount * this.cellCount;
 		this.directedGraph = [];
+		this.verboseMode = false;
 		
 		this.randomizeAllGraphs();
 		
@@ -223,6 +224,12 @@ var HW3_LIBRARY =
 		var aboutHW3 = document.getElementById("about-hw3");
 		
 		aboutHW3.hidden = !aboutHW3.hidden;
+		
+		return;
+	}
+	
+	HW3Library.prototype.toggleVerboseMode = function() {
+		this.verboseMode = document.getElementById("verbose-flag").checked;
 		
 		return;
 	}

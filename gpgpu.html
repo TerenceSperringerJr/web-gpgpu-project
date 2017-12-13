@@ -25,6 +25,12 @@
 	<div style="padding-bottom: 5px;">
 		<button onclick="HW3_LIBRARY.toggleHW3About();">About</button>
 		
+		<form>
+			<span>Verbose mode: </span>
+			<input checked type="radio" name="verbose" value="off" onclick="HW3_LIBRARY.toggleVerboseMode();"><span>Off</span>
+			<input id="verbose-flag" type="radio" name="verbose" value="on" onclick="HW3_LIBRARY.toggleVerboseMode();"><span>On</span>
+		</form>
+		
 		<div id="about-hw3" class="quote" hidden>
 			<p><span style="font-size: x-large;">"</span>The goal of this application is to analyze the performance of running homework #3 in parallel via GPGPU methodologies against the performance of running it serially on systems of varying GPU configurations.</p>
 			<p>To assist this goal, the application was made with <a href="https://turbo.js.org/" target="_blank">TurboJS</a> so that it can run easily within many popular modern browsers without the need for porting or modifying code.<span style="font-size: x-large;">"</span></p>

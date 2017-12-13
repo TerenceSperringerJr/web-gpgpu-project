@@ -37,8 +37,7 @@
 			buffer[i] = 0;
 		}
 		
-		//GPU work
-		//Add the connection graph columns together to get direct occurences
+		//GPU work: add the connection graph columns together to get direct occurences
 		//PERFORMANCE WIN?
 		turbojs.run(gpuBuffer, DIRECT_CONNECTS);
 		
@@ -58,11 +57,13 @@
 		
 		//Output
 		//Either match or slight loss -depending on toString() implementation
-		output[graphIndex] = HW3_LIBRARY.stringifyMatrix(directedGraph) + buffer[betweenVectorOffset];
-		for(i = 1; i < HW3_LIBRARY.cellCount; i++) {
-			output[graphIndex] += "," + buffer[betweenVectorOffset + i];
+		if(HW3_LIBRARY.verboseMode) {
+			output[graphIndex] = HW3_LIBRARY.stringifyMatrix(directedGraph) + buffer[betweenVectorOffset];
+			for(i = 1; i < HW3_LIBRARY.cellCount; i++) {
+				output[graphIndex] += "," + buffer[betweenVectorOffset + i];
+			}
+			output[graphIndex] += "<hr><br>";
 		}
-		output[graphIndex] += "<hr><br>";
 		
 		graphIndex++;
 		
@@ -86,8 +87,10 @@
 		$("#gpu-results").html("Running GPU Parallel Version...");
 		times = HW3_LIBRARY.profileFunction(betweenerGPU, HW3_LIBRARY.profileCalls);
 		
-		for(i = 0; i < HW3_LIBRARY.profileCalls; i++) {
-			HW3_LIBRARY.printToOutput(output[i]);
+		if(HW3_LIBRARY.verboseMode) {
+			for(i = 0; i < HW3_LIBRARY.profileCalls; i++) {
+				HW3_LIBRARY.printToOutput(output[i]);
+			}
 		}
 		
 		HW3_LIBRARY.printTimeStatistics(times, $("#gpu-results")[0]);
